@@ -40,6 +40,18 @@ Task:
 - In the table above, the **Products column** contains multiple values, which violates **1NF**.
 - **Write an SQL query** to transform this table into **1NF**, ensuring that each row represents a single product for an order
 
+##Using JSON_TABLE
+SELECT 
+    OrderID,
+    CustomerName,
+    TRIM(Product) AS Product
+FROM
+    ProductDetail,
+    JSON_TABLE(
+        CONCAT('["', REPLACE(Products, ', ', '","'), '"]'),
+        "$[*]" COLUMNS(Product VARCHAR(100) PATH "$")
+    ) AS SplitProducts;
+
 --- 
 
 ### Question 2 Achieving 2NF (Second Normal Form) 🧩
@@ -58,6 +70,32 @@ Task:
 - In the table above, the **CustomerName** column depends on **OrderID** (a partial dependency), which violates **2NF**. 
 
 - Write an SQL query to transform this table into **2NF** by removing partial dependencies. Ensure that each non-key column fully depends on the entire primary key.
+
+-- Create Orders table
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    CustomerName VARCHAR(100)
+);
+
+-- Insert distinct OrderID and CustomerName pairs
+INSERT INTO Orders (OrderID, CustomerName)
+SELECT DISTINCT OrderID, CustomerName
+FROM OrderDetails;
+
+-- Create normalized OrderDetails table without CustomerName
+CREATE TABLE NormalizedOrderDetails (
+    OrderID INT,
+    Product VARCHAR(100),
+    Quantity INT,
+    PRIMARY KEY (OrderID, Product),
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
+);
+
+-- Insert data into normalized OrderDetails (without CustomerName)
+INSERT INTO NormalizedOrderDetails (OrderID, Product, Quantity)
+SELECT OrderID, Product, Quantity
+FROM OrderDetails;
+
 
 ---
 Good luck 🚀
