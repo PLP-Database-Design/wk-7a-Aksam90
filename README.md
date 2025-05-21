@@ -71,18 +71,18 @@ FROM
 
 - Write an SQL query to transform this table into **2NF** by removing partial dependencies. Ensure that each non-key column fully depends on the entire primary key.
 
--- Create Orders table
+Create Orders table
 CREATE TABLE Orders (
     OrderID INT PRIMARY KEY,
     CustomerName VARCHAR(100)
 );
 
--- Insert distinct OrderID and CustomerName pairs
+ Insert distinct OrderID and CustomerName pairs
 INSERT INTO Orders (OrderID, CustomerName)
 SELECT DISTINCT OrderID, CustomerName
 FROM OrderDetails;
 
--- Create normalized OrderDetails table without CustomerName
+ Create normalized OrderDetails table without CustomerName
 CREATE TABLE NormalizedOrderDetails (
     OrderID INT,
     Product VARCHAR(100),
@@ -91,7 +91,7 @@ CREATE TABLE NormalizedOrderDetails (
     FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
 );
 
--- Insert data into normalized OrderDetails (without CustomerName)
+ Insert data into normalized OrderDetails (without CustomerName)
 INSERT INTO NormalizedOrderDetails (OrderID, Product, Quantity)
 SELECT OrderID, Product, Quantity
 FROM OrderDetails;
